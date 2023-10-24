@@ -1,9 +1,9 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from dot_env import env
+from discord import TextChannel
 
-TOKEN = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-CHANNEL_ID = xxxxxxxxxxxxxxxxxx
 
 intents = discord.Intents.default()
 intents.reactions = True
@@ -23,14 +23,16 @@ async def on_ready():
 async def add_command(interaction: discord.Interaction, title: str, month: int, day: int, weekday: str, content: str):
     embed = discord.Embed(title=title, color=discord.Colour.blue())
     deadline_str = f"{month}月{day}日 ({weekday})"
-    embed.add_field(name="期限", value=deadline_str, inline=False)
-    embed.add_field(name="内容", value=content, inline=False)
+    embed.add_field(name="Deadline", value=deadline_str, inline=False)
+    embed.add_field(name="Content", value=content, inline=False)
 
-    channel = client.get_channel(CHANNEL_ID)
+    channel = client.get_channel(int(env("CHANNEL_ID")))
+    if not isinstance(channel, TextChannel):
+        raise ValueError("channel is not TextChannel")
     message = await channel.send(embed=embed)
 
     await message.add_reaction(COMPLETED_EMOJI)
 
     await interaction.response.send_message("added the task!")
 
-client.run(TOKEN)
+client.run(env("TOKEN"))
